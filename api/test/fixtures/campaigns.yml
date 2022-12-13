@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  created_by: one
+  dmed_by: one
+  settings: 
+
+two:
+  name: MyString
+  created_by: two
+  dmed_by: two
+  settings: 

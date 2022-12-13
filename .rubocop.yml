@@ -1,0 +1,9 @@
+
+Style/Documentation:
+  Enabled: false
+
+Style/SymbolArray:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false

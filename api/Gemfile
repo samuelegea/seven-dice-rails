@@ -42,12 +42,23 @@ gem 'devise-jwt'
 
 gem 'i18n'
 
+
+# gem 'activerecord_json_validator', '~> 2.0.0'
+
 # implement later on
 # gem 'active-admin'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri mingw x64_mingw ]
+
+  gem 'faker'
+end
+
+group :test do
+  gem 'rspec-rails'
+  gem 'factory_bot_rails'
+  gem 'shoulda-matchers'
 end
 
 group :development do
