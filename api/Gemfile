@@ -42,6 +42,13 @@ gem 'devise-jwt'
 
 gem 'i18n'
 
+gem 'rubocop'
+
+gem 'rubocop-rails'
+
+gem 'rubocop-rspec'
+
+gem 'rubocop-performance'
 
 # gem 'activerecord_json_validator', '~> 2.0.0'
 
