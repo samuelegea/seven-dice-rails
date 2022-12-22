@@ -26,6 +26,31 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_HOST: db
       DEVISE_JWT_SECRET_KEY: 0Fbrnc09eYEBqFOOZHeD5to1dnyjpU3nVXHH4CRQ
+      REDIS_URL_SIDEKIQ: redis://redis:6379/1
+
+  sidekiq:
+    container_name: sidekiq
+    build: ./api
+    command: bash -c "bundle exec sidekiq"
+    volumes:
+      - ./api:/api
+    depends_on:
+      - api
+    environment:
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: db
+      DEVISE_JWT_SECRET_KEY: 0Fbrnc09eYEBqFOOZHeD5to1dnyjpU3nVXHH4CRQ
+      REDIS_URL_SIDEKIQ: redis://redis:6379/1
+  redis:
+    container_name: redis
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server
+    volumes:
+      - redis:/data
   client:
     container_name: client
     build: ./client
@@ -34,7 +59,7 @@ services:
       - ./client:/client
     ports:
       - "3333:3333"
-    # depends_on:
-    #   - back
 volumes:
+  redis:
+    driver: local
   postgresdb:

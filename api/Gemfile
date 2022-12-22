@@ -6,6 +6,12 @@ ruby "3.1.2"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.0.4"
 
+# Use pry as the console instead of irb
+gem 'pry', '~> 0.13.1'
+
+# Use pry-rails for initialize pry console
+gem 'pry-rails', '~> 0.3.9'
+
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
 
@@ -16,7 +22,7 @@ gem "puma", "~> 5.0"
 # gem "jbuilder"
 
 # Use Redis adapter to run Action Cable in production
-# gem "redis", "~> 4.0"
+gem "redis"
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
@@ -42,29 +48,37 @@ gem 'devise-jwt'
 
 gem 'i18n'
 
-gem 'rubocop'
+gem 'activeadmin', github: 'activeadmin/activeadmin', branch: 'master' # FIXME: revert to stable
+gem 'sass-rails'
 
-gem 'rubocop-rails'
-
-gem 'rubocop-rspec'
-
-gem 'rubocop-performance'
 
 # gem 'activerecord_json_validator', '~> 2.0.0'
-
-# implement later on
-# gem 'active-admin'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri mingw x64_mingw ]
 
   gem 'faker'
+
+  # Use pry-byebug for better debugging
+  gem 'pry-byebug', '~> 3.9.0'
+
+  gem 'rubocop'
+
+  gem 'rubocop-rails'
+
+  gem 'rubocop-rspec'
+
+  gem 'rubocop-performance'
+
+  gem 'sidekiq'
+
+  gem 'sidekiq-batch'
 end
 
 group :test do
-  gem 'rspec-rails'
   gem 'factory_bot_rails'
+  gem 'rspec-rails'
   gem 'shoulda-matchers'
 end
 

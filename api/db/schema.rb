@@ -1,4 +1,3 @@
-# rubocop:disable Metrics/BlockLength, Style/StringLiterals, Style/NumericLiterals
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -11,10 +10,34 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_12_16_211226) do
+ActiveRecord::Schema[7.0].define(version: 2022_12_22_172959) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+
+  create_table "active_admin_comments", force: :cascade do |t|
+    t.string "namespace"
+    t.text "body"
+    t.string "resource_type"
+    t.bigint "resource_id"
+    t.string "author_type"
+    t.bigint "author_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_type", "author_id"], name: "index_active_admin_comments_on_author"
+    t.index ["namespace"], name: "index_active_admin_comments_on_namespace"
+    t.index ["resource_type", "resource_id"], name: "index_active_admin_comments_on_resource"
+  end
+
+  create_table "admin_users", force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.index ["email"], name: "index_admin_users_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
+  end
 
   create_table "campaigns", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
@@ -72,7 +95,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_16_211226) do
 
   create_table "dnd_classes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", default: "", null: false
-    t.text "desc", default: "", null: false
+    t.text "description", default: "", null: false
     t.json "details", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -81,7 +104,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_16_211226) do
 
   create_table "dnd_sub_classes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", default: "", null: false
-    t.text "desc", default: "", null: false
+    t.text "description", default: "", null: false
     t.json "details", null: false
     t.uuid "dnd_class_id", null: false
     t.datetime "created_at", null: false
@@ -90,21 +113,37 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_16_211226) do
     t.index ["dnd_class_id"], name: "index_dnd_sub_classes_on_dnd_class_id"
   end
 
+  create_table "equipament_categories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "equipament_contents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.integer "quantity", default: 1, null: false
+    t.uuid "holder_id", null: false
+    t.uuid "holdee_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["holdee_id"], name: "index_equipament_contents_on_holdee_id"
+    t.index ["holder_id"], name: "index_equipament_contents_on_holder_id"
+  end
+
   create_table "equipaments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "name", null: false
-    t.string "desc", null: false
-    t.uuid "holded_by_id", null: false
-    t.integer "type", null: false
-    t.json "details", null: false
+    t.string "name", default: "", null: false
+    t.text "description", default: "", null: false
+    t.integer "equipament_type", default: 0, null: false
+    t.json "details", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "homebrew", default: true, null: false
-    t.index ["holded_by_id"], name: "index_equipaments_on_holded_by_id"
+    t.uuid "equipament_category_id", null: false
+    t.index ["equipament_category_id"], name: "index_equipaments_on_equipament_category_id"
   end
 
   create_table "feats", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", default: "", null: false
-    t.text "desc", default: "", null: false
+    t.text "description", default: "", null: false
     t.json "details", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -151,36 +190,9 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_16_211226) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "magic_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "name", default: "", null: false
-    t.text "desc", default: "", null: false
-    t.boolean "comsumable", default: false, null: false
-    t.json "rarity", null: false
-    t.json "type", null: false
-    t.json "subtype", null: false
-    t.json "requires_attunement", null: false
-    t.json "details", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "homebrew", default: true, null: false
-  end
-
-  create_table "magic_items_characters_tables", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "magic_item_id", null: false
-    t.uuid "character_id", null: false
-    t.integer "status", null: false
-    t.boolean "equiped", default: false, null: false
-    t.boolean "wielded", default: false, null: false
-    t.boolean "attuned", default: false, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["character_id"], name: "index_magic_items_characters_tables_on_character_id"
-    t.index ["magic_item_id"], name: "index_magic_items_characters_tables_on_magic_item_id"
-  end
-
   create_table "monsters", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name"
-    t.text "desc"
+    t.text "description"
     t.json "details"
     t.float "challenge_rating"
     t.integer "creature_type"
@@ -232,7 +244,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_16_211226) do
 
   create_table "spells", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
-    t.text "desc", null: false
+    t.text "description", null: false
     t.integer "components", default: [], null: false, array: true
     t.json "details", null: false
     t.integer "duration_qtd", null: false
@@ -306,15 +318,13 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_16_211226) do
   add_foreign_key "classes_spells", "dnd_classes"
   add_foreign_key "classes_spells", "spells"
   add_foreign_key "dnd_sub_classes", "dnd_classes"
-  add_foreign_key "equipaments", "equipaments", column: "holded_by_id"
+  add_foreign_key "equipament_contents", "equipaments", column: "holdee_id"
+  add_foreign_key "equipament_contents", "equipaments", column: "holder_id"
+  add_foreign_key "equipaments", "equipament_categories"
   add_foreign_key "feats_characters", "feats", column: "feats_id"
   add_foreign_key "feats_characters", "users", column: "users_id"
   add_foreign_key "features_sources", "features"
-  add_foreign_key "magic_items_characters_tables", "characters"
-  add_foreign_key "magic_items_characters_tables", "magic_items"
   add_foreign_key "skill_characters", "characters"
   add_foreign_key "skill_characters", "skills", column: "skills_id"
   add_foreign_key "sub_races", "races"
 end
-
-# rubocop:enable Metrics/BlockLength, Style/StringLiterals, Style/NumericLiterals
