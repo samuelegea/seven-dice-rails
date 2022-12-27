@@ -1,0 +1,35 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  description: MyText
+  melee: false
+  martial: false
+  melee: false
+  damage_type: 1
+  damage_dice: MyString
+  range: 1
+  range_long: 1
+  throw_range: 1
+  throw_range_long: 1
+  two_handed_damage_dice: MyString
+  two_handed_damage_type: 1
+  actions: 
+  properties: 1
+
+two:
+  name: MyString
+  description: MyText
+  melee: false
+  martial: false
+  melee: false
+  damage_type: 1
+  damage_dice: MyString
+  range: 1
+  range_long: 1
+  throw_range: 1
+  throw_range_long: 1
+  two_handed_damage_dice: MyString
+  two_handed_damage_type: 1
+  actions: 
+  properties: 1

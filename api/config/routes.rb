@@ -1,10 +1,11 @@
 require 'sidekiq/web'
 Rails.application.routes.draw do
+  resources :weapons
+  resources :homebrew_accesses
   mount Sidekiq::Web => '/sidekiq'
 
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
-  resources :equipament_contents
   resources :equipament_categories
   resources :proficiencies
   resources :monsters
@@ -14,7 +15,6 @@ Rails.application.routes.draw do
   resources :spells
   resources :dnd_classes
   resources :dnd_sub_classes
-  resources :equipaments
   resources :characters
   resources :sub_races
   resources :races

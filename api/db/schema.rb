@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_12_22_172959) do
+ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -133,12 +133,24 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_172959) do
     t.string "name", default: "", null: false
     t.text "description", default: "", null: false
     t.integer "equipament_type", default: 0, null: false
+    t.integer "rarity", default: 0, null: false
+    t.boolean "requires_attunement", default: false, null: false
+    t.integer "cost_qtd", default: 0, null: false
+    t.integer "cost_type", default: 0, null: false
+    t.integer "weight", default: 0, null: false
     t.json "details", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "homebrew", default: true, null: false
+  end
+
+  create_table "equipaments_equipament_categories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "equipament_id", null: false
     t.uuid "equipament_category_id", null: false
-    t.index ["equipament_category_id"], name: "index_equipaments_on_equipament_category_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["equipament_category_id"], name: "equipment_category_on_equipament_category_id"
+    t.index ["equipament_id"], name: "equipment_on_equipament_id"
   end
 
   create_table "feats", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -176,6 +188,16 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_172959) do
     t.datetime "updated_at", null: false
     t.index ["feature_id"], name: "index_features_sources_on_feature_id"
     t.index ["source_type", "source_id"], name: "index_features_sources_on_source"
+  end
+
+  create_table "homebrew_accesses", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "character_id", null: false
+    t.string "source_type", null: false
+    t.uuid "source_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["character_id"], name: "index_homebrew_accesses_on_character_id"
+    t.index ["source_type", "source_id"], name: "index_homebrew_accesses_on_source"
   end
 
   create_table "jwt_deny_lists", force: :cascade do |t|
@@ -320,10 +342,12 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_172959) do
   add_foreign_key "dnd_sub_classes", "dnd_classes"
   add_foreign_key "equipament_contents", "equipaments", column: "holdee_id"
   add_foreign_key "equipament_contents", "equipaments", column: "holder_id"
-  add_foreign_key "equipaments", "equipament_categories"
+  add_foreign_key "equipaments_equipament_categories", "equipament_categories"
+  add_foreign_key "equipaments_equipament_categories", "equipaments"
   add_foreign_key "feats_characters", "feats", column: "feats_id"
   add_foreign_key "feats_characters", "users", column: "users_id"
   add_foreign_key "features_sources", "features"
+  add_foreign_key "homebrew_accesses", "characters"
   add_foreign_key "skill_characters", "characters"
   add_foreign_key "skill_characters", "skills", column: "skills_id"
   add_foreign_key "sub_races", "races"

@@ -1,6 +1,6 @@
 require "test_helper"
 
-class EquipamentTest < ActiveSupport::TestCase
+class HomebrewAccessTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end
