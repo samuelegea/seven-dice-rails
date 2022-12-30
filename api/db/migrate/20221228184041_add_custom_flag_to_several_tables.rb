@@ -11,6 +11,7 @@ class AddCustomFlagToSeveralTables < ActiveRecord::Migration[7.0]
     add_column :feats, :homebrew, :boolean, null: false, default: false
     add_column :monsters, :homebrew, :boolean, null: false, default: false
     add_column :traits, :homebrew, :boolean, null: false, default: false
+    add_column :equipments, :homebrew, :boolean, null: false, default: false
 
     add_column :races, :public, :boolean, null: false, default: true
     add_column :sub_races, :public, :boolean, null: false, default: true
@@ -23,5 +24,6 @@ class AddCustomFlagToSeveralTables < ActiveRecord::Migration[7.0]
     add_column :feats, :public, :boolean, null: false, default: true
     add_column :monsters, :public, :boolean, null: false, default: true
     add_column :traits, :public, :boolean, null: false, default: true
+    add_column :equipments, :public, :boolean, null: false, default: true
   end
 end

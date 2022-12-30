@@ -1,5 +1,9 @@
 require 'sidekiq/web'
 Rails.application.routes.draw do
+  resources :vehicles
+  resources :equipaments
+  resources :gears
+  resources :armors
   resources :weapons
   resources :homebrew_accesses
   mount Sidekiq::Web => '/sidekiq'

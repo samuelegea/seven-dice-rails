@@ -1,3 +1,3 @@
 class Proficiency < ApplicationRecord
-  belongs_to :source
+  belongs_to :source, polymorphic: true
 end

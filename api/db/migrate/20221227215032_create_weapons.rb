@@ -5,7 +5,6 @@ class CreateWeapons < ActiveRecord::Migration[7.0]
       t.text    :description, null: false
       t.boolean :melee,       null: false
       t.boolean :martial,     null: false
-      t.boolean :melee,       null: false
       t.integer :damage_type, null: false
       t.string  :damage_dice, null: false
       t.integer :range,       null: false
@@ -15,7 +14,6 @@ class CreateWeapons < ActiveRecord::Migration[7.0]
       t.string  :two_handed_damage_dice
       t.integer :two_handed_damage_type
       t.json    :actions
-      t.integer :properties, null: false, array: true
 
       t.timestamps
     end

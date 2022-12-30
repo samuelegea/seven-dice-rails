@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
+ActiveRecord::Schema[7.0].define(version: 2022_12_28_212353) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -39,6 +39,19 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
 
+  create_table "armors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "name"
+    t.text "description"
+    t.integer "category"
+    t.integer "armor_class"
+    t.boolean "armor_class_dex_bonus"
+    t.integer "armor_class_max_bonus"
+    t.boolean "stealth_disadvantage"
+    t.integer "str_minimun"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "campaigns", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.text "description", null: false
@@ -49,17 +62,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
     t.datetime "updated_at", null: false
     t.index ["created_by_id"], name: "index_campaigns_on_created_by_id"
     t.index ["dmed_by_id"], name: "index_campaigns_on_dmed_by_id"
-  end
-
-  create_table "character_equipaments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "character_id", null: false
-    t.uuid "equipament_id", null: false
-    t.integer "status", null: false
-    t.json "details", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["character_id"], name: "index_character_equipaments_on_character_id"
-    t.index ["equipament_id"], name: "index_character_equipaments_on_equipament_id"
   end
 
   create_table "character_traits", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -99,7 +101,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
     t.json "details", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "homebrew", default: true, null: false
+    t.boolean "homebrew", default: false, null: false
+    t.boolean "public", default: true, null: false
   end
 
   create_table "dnd_sub_classes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -109,48 +112,30 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
     t.uuid "dnd_class_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "homebrew", default: true, null: false
+    t.boolean "homebrew", default: false, null: false
+    t.boolean "public", default: true, null: false
     t.index ["dnd_class_id"], name: "index_dnd_sub_classes_on_dnd_class_id"
   end
 
-  create_table "equipament_categories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "equipment_categories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "equipament_contents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.integer "quantity", default: 1, null: false
-    t.uuid "holder_id", null: false
-    t.uuid "holdee_id", null: false
+  create_table "equipments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "source_type", null: false
+    t.uuid "source_id", null: false
+    t.float "cost_qtd"
+    t.integer "cost_unit"
+    t.uuid "equipment_category_id", null: false
+    t.integer "weight"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["holdee_id"], name: "index_equipament_contents_on_holdee_id"
-    t.index ["holder_id"], name: "index_equipament_contents_on_holder_id"
-  end
-
-  create_table "equipaments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "name", default: "", null: false
-    t.text "description", default: "", null: false
-    t.integer "equipament_type", default: 0, null: false
-    t.integer "rarity", default: 0, null: false
-    t.boolean "requires_attunement", default: false, null: false
-    t.integer "cost_qtd", default: 0, null: false
-    t.integer "cost_type", default: 0, null: false
-    t.integer "weight", default: 0, null: false
-    t.json "details", default: {}, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "homebrew", default: true, null: false
-  end
-
-  create_table "equipaments_equipament_categories", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "equipament_id", null: false
-    t.uuid "equipament_category_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["equipament_category_id"], name: "equipment_category_on_equipament_category_id"
-    t.index ["equipament_id"], name: "equipment_on_equipament_id"
+    t.boolean "homebrew", default: false, null: false
+    t.boolean "public", default: true, null: false
+    t.index ["equipment_category_id"], name: "index_equipments_on_equipment_category_id"
+    t.index ["source_type", "source_id"], name: "index_equipments_on_source"
   end
 
   create_table "feats", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -159,7 +144,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
     t.json "details", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "homebrew", default: true, null: false
+    t.boolean "homebrew", default: false, null: false
+    t.boolean "public", default: true, null: false
   end
 
   create_table "feats_characters", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -177,7 +163,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
     t.json "details", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "homebrew", default: true, null: false
+    t.boolean "homebrew", default: false, null: false
+    t.boolean "public", default: true, null: false
   end
 
   create_table "features_sources", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -188,6 +175,23 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
     t.datetime "updated_at", null: false
     t.index ["feature_id"], name: "index_features_sources_on_feature_id"
     t.index ["source_type", "source_id"], name: "index_features_sources_on_source"
+  end
+
+  create_table "gears", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "gears_equipments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "gear_id", null: false
+    t.uuid "equipments_id", null: false
+    t.integer "quantity"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["equipments_id"], name: "index_gears_equipments_on_equipments_id"
+    t.index ["gear_id"], name: "index_gears_equipments_on_gear_id"
   end
 
   create_table "homebrew_accesses", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -222,17 +226,42 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
     t.integer "aligment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "homebrew", default: true, null: false
+    t.boolean "homebrew", default: false, null: false
+    t.boolean "public", default: true, null: false
   end
 
   create_table "proficiencies", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "source_type", null: false
     t.uuid "source_id", null: false
-    t.integer "equipament_type", null: false
+    t.uuid "equipment_category_id"
+    t.uuid "weapon_category_id"
+    t.uuid "armor_category_id"
+    t.uuid "tool_category_id"
+    t.uuid "skill_id"
+    t.uuid "saving_throw_id"
+    t.uuid "ability_id"
+    t.uuid "language_id"
+    t.uuid "vehicle_id"
+    t.uuid "weapon_id"
+    t.uuid "armor_id"
+    t.uuid "tool_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "homebrew", default: true, null: false
+    t.boolean "homebrew", default: false, null: false
+    t.boolean "public", default: true, null: false
+    t.index ["ability_id"], name: "index_proficiencies_on_ability_id"
+    t.index ["armor_category_id"], name: "index_proficiencies_on_armor_category_id"
+    t.index ["armor_id"], name: "index_proficiencies_on_armor_id"
+    t.index ["equipment_category_id"], name: "index_proficiencies_on_equipment_category_id"
+    t.index ["language_id"], name: "index_proficiencies_on_language_id"
+    t.index ["saving_throw_id"], name: "index_proficiencies_on_saving_throw_id"
+    t.index ["skill_id"], name: "index_proficiencies_on_skill_id"
     t.index ["source_type", "source_id"], name: "index_proficiencies_on_source"
+    t.index ["tool_category_id"], name: "index_proficiencies_on_tool_category_id"
+    t.index ["tool_id"], name: "index_proficiencies_on_tool_id"
+    t.index ["vehicle_id"], name: "index_proficiencies_on_vehicle_id"
+    t.index ["weapon_category_id"], name: "index_proficiencies_on_weapon_category_id"
+    t.index ["weapon_id"], name: "index_proficiencies_on_weapon_id"
   end
 
   create_table "races", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -242,7 +271,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
     t.boolean "has_sub_races?"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "homebrew", default: true, null: false
+    t.boolean "homebrew", default: false, null: false
+    t.boolean "public", default: true, null: false
   end
 
   create_table "skill_characters", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -261,7 +291,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
     t.integer "default_ability_score", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "homebrew", default: true, null: false
+    t.boolean "homebrew", default: false, null: false
+    t.boolean "public", default: true, null: false
   end
 
   create_table "spells", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -282,7 +313,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
     t.integer "school", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "homebrew", default: true, null: false
+    t.boolean "homebrew", default: false, null: false
+    t.boolean "public", default: true, null: false
   end
 
   create_table "spoken_languages", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -300,7 +332,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
     t.uuid "race_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "homebrew", default: true, null: false
+    t.boolean "homebrew", default: false, null: false
+    t.boolean "public", default: true, null: false
     t.index ["race_id"], name: "index_sub_races_on_race_id"
   end
 
@@ -312,7 +345,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
     t.jsonb "details", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "homebrew", default: true, null: false
+    t.boolean "homebrew", default: false, null: false
+    t.boolean "public", default: true, null: false
     t.index ["source_type", "source_id"], name: "index_traits_on_source"
   end
 
@@ -332,23 +366,68 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_22_195153) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "vehicles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description", null: false
+    t.integer "speed_qtd"
+    t.integer "speed_unit"
+    t.integer "capacity"
+    t.integer "vehicle_category", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "weapon_properties", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.json "actions"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "weapon_properties_weapons", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "weapon_id"
+    t.uuid "weapon_property_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["weapon_id"], name: "index_weapon_properties_weapons_on_weapon_id"
+    t.index ["weapon_property_id"], name: "index_weapon_properties_weapons_on_weapon_property_id"
+  end
+
+  create_table "weapons", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description", null: false
+    t.boolean "melee", null: false
+    t.boolean "martial", null: false
+    t.integer "damage_type", null: false
+    t.string "damage_dice", null: false
+    t.integer "range", null: false
+    t.integer "range_long"
+    t.integer "throw_range"
+    t.integer "throw_range_long"
+    t.string "two_handed_damage_dice"
+    t.integer "two_handed_damage_type"
+    t.json "actions"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   add_foreign_key "campaigns", "users", column: "created_by_id"
   add_foreign_key "campaigns", "users", column: "dmed_by_id"
-  add_foreign_key "character_equipaments", "characters"
-  add_foreign_key "character_equipaments", "equipaments"
   add_foreign_key "characters", "races"
   add_foreign_key "classes_spells", "dnd_classes"
   add_foreign_key "classes_spells", "spells"
   add_foreign_key "dnd_sub_classes", "dnd_classes"
-  add_foreign_key "equipament_contents", "equipaments", column: "holdee_id"
-  add_foreign_key "equipament_contents", "equipaments", column: "holder_id"
-  add_foreign_key "equipaments_equipament_categories", "equipament_categories"
-  add_foreign_key "equipaments_equipament_categories", "equipaments"
+  add_foreign_key "equipments", "equipment_categories"
   add_foreign_key "feats_characters", "feats", column: "feats_id"
   add_foreign_key "feats_characters", "users", column: "users_id"
   add_foreign_key "features_sources", "features"
+  add_foreign_key "gears_equipments", "equipments", column: "equipments_id"
+  add_foreign_key "gears_equipments", "gears"
   add_foreign_key "homebrew_accesses", "characters"
   add_foreign_key "skill_characters", "characters"
   add_foreign_key "skill_characters", "skills", column: "skills_id"
   add_foreign_key "sub_races", "races"
+  add_foreign_key "weapon_properties_weapons", "weapon_properties"
+  add_foreign_key "weapon_properties_weapons", "weapons"
 end

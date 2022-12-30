@@ -1,6 +1,6 @@
 require "test_helper"
 
-class EquipamentCategoryTest < ActiveSupport::TestCase
+class EquipmentTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

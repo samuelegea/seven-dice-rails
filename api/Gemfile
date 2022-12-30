@@ -51,6 +51,7 @@ gem 'i18n'
 gem 'activeadmin', github: 'activeadmin/activeadmin', branch: 'master' # FIXME: revert to stable
 gem 'sass-rails'
 
+gem 'json'
 
 # gem 'activerecord_json_validator', '~> 2.0.0'
 

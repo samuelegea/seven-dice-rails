@@ -1,133 +1,81 @@
-require 'uri'
-require 'net/http'
+require 'json'
+
+# Create Admin User for development
+# AdminUser.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password') if Rails.env.development?
 
 # First of all, we need to create all the vanilla classes, subclasses, races and subraces
 # We will use the D&D 5e API to get all the information we need
 
 
 # Classes
-class_names = [
-  "barbarian",
-  "bard",
-  "cleric",
-  "druid",
-  "fighter",
-  "monk",
-  "paladin",
-  "ranger",
-  "rogue",
-  "sorcerer",
-  "warlock",
-  "wizard"
-]
+# class_names = [
+#   "barbarian",
+#   "bard",
+#   "cleric",
+#   "druid",
+#   "fighter",
+#   "monk",
+#   "paladin",
+#   "ranger",
+#   "rogue",
+#   "sorcerer",
+#   "warlock",
+#   "wizard"
+# ]
+# Creating all the equipment categories
 
-# Create every equipament category
-uri = URI("https://www.dnd5eapi.co/api/equipment-categories") # This is the API endpoint for the equipament
-res = Net::HTTP.get_response(uri)
-data = JSON.parse(res.body)
-
-data["results"].each do |category|
-  EquipamentCategory.create!(
-    name: category["name"],
-  )
-end # OK
-
-# Create the equipaments
-
-batch = Sidekiq::Batch.new
-
-uri = URI("https://www.dnd5eapi.co/api/equipment") # This is the API endpoint for the equipament
-res = Net::HTTP.get_response(uri)
-data = JSON.parse(res.body)
-pp 'Started creating equipaments'
-batch.jobs do
-  data["results"].each do |equipament|
-    next if Equipament.find_by(name: equipament["name"]).present?
-
-    CreateEquipamentJob.perform_async(equipament["url"])
-  end
+equipament_categories = JSON.parse(File.read('db/sources/5e-SRD-Equipment-Categories.json'))
+equipament_categories.each do |category|
+  EquipmentCategory.create!(name: category['name'])
+end
+weapon_properties = JSON.parse(File.read('db/sources/5e-SRD-Weapon-Properties.json'))
+weapon_properties.each do |category|
+  WeaponProperty.create!(name: category['name'],
+                         description: category['desc'],
+                         actions: {})
 end
 
-pp 'Started creating magic items'
-uri = URI("https://www.dnd5eapi.co/api/magic-items") # This is the API endpoint for the magic items
-res = Net::HTTP.get_response(uri)
-data = JSON.parse(res.body)
-pp 'Started creating magic items'
-batch.jobs do
-  data["results"].each do |magic_item|
-    next if Equipament.find_by(name: magic_item["name"]).present?
+# Creating all the equipments
+equipments = JSON.parse(File.read('db/sources/5e-SRD-Equipment.json'))
+# weapons = equipments.filter { |a| a['weapon_category'] }
 
-    CreateEquipamentJob.perform_async(magic_item["url"])
+# Creating all the weapons
+ActiveRecord::Base.transaction do
+  equipments.filter { |a| a['weapon_category'] }.each do |weapon|
+    w = Weapon.create!(name: weapon['name'],
+                       description: weapon['desc'] || '',
+                       melee: weapon['weapon_range'] == 'Melee',
+                       martial: weapon['weapon_category'] == 'Martial',
+                       damage_type: weapon.dig('damage', 'damage_type', 'name') || 0,
+                       damage_dice: weapon.dig('damage', 'damage_dice') || 0,
+                       range: weapon.dig('range', 'normal'),
+                       range_long: weapon.dig('range', 'long'),
+                       throw_range: weapon.dig('range', 'throw'),
+                       throw_range_long: weapon.dig('range', 'throw_long'),
+                       two_handed_damage_dice: weapon.dig('two_handed_damage', 'damage_dice'),
+                       two_handed_damage_type: weapon.dig('two_handed_damage', 'damage_type', 'name'),
+                       actions: {})
+    w.weapon_properties << WeaponProperty.where(name: weapon['properties'].map { |p| p['name'] })
+    Equipment.create!(source: w,
+                      cost_qtd: weapon['cost']['quantity'],
+                      cost_unit: weapon['cost']['unit'],
+                      equipment_category: EquipmentCategory.find_by(name: weapon['equipment_category']['name']),
+                      weight: weapon['weight'])
   end
 end
-
-# Create magic items
-
-Equipament.all.filter { |a| a.name.include? "Pack" }.each do |pack|
-  pp "Creating content for #{pack.name}"
-  pack.details["contents"].each do |content|
-    pp "Creating content for #{pack.name} with #{content['quantity']} #{content['item']['name']}"
-    pack.holded_contents.create!(holdee_id: Equipament.find_by(name: content["item"]["name"]).id, quantity: content["quantity"])
+# Creating all the vehicles
+ActiveRecord::Base.transaction do
+  equipments.filter { |a| a['vehicle_category'] }.each do |vehicle|
+    w = Vehicle.create!(name: vehicle['name'],
+                        description: vehicle['desc'] || '',
+                        vehicle_category: vehicle['vehicle_category'],
+                        speed_qtd: vehicle.dig('speed', 'quantity'),
+                        speed_unit: vehicle.dig('speed', 'unit'),
+                        capacity: vehicle['capacity'])
+    Equipment.create!(source: w,
+                      cost_qtd: vehicle['cost']['quantity'],
+                      cost_unit: vehicle['cost']['unit'],
+                      equipment_category: EquipmentCategory.find_by(name: vehicle['equipment_category']['name']),
+                      weight: vehicle['weight'])
   end
 end
-
-
-# Create spells
-
-# uri = URI("https://www.dnd5eapi.co/api/spells") # This is the API endpoint for the spells
-# res = Net::HTTP.get_response(uri)
-# data = JSON.parse(res.body)
-# pp 'Started creating spells'
-# time = Time.now
-# data["results"].each do |spell|
-#   # pp "Creating Spell named: #{spell['name']}"
-#   next if Spell.find_by(name: spell["name"]).present?
-
-#   uri = URI("https://www.dnd5eapi.co#{spell['url']}")
-#   res = Net::HTTP.get_response(uri)
-#   data = JSON.parse(res.body)
-#   Spell.create!(
-#     name: data["name"],
-#     description: data["desc"],
-#     homebrew: false,
-#     details: {
-#       level: data["level"],
-#       school: data["school"]["name"],
-#       casting_time: data["casting_time"],
-#       range: data["range"],
-#       components: data["components"],
-#       duration: data["duration"],
-#       concentration: data["concentration"],
-#       ritual: data["ritual"]
-#     })
-# end
-
-# pp "It took #{ActiveSupport::Duration.build(Time.now - time)} to create all the spells"
-
-
-# class_names.each do |class_name|
-#   uri = URI("https://www.dnd5eapi.co/api/classes/#{class_name}") # This is the API endpoint for the classes
-#   res = Net::HTTP.get_response(uri)
-#   data = JSON.parse(res.body)
-#   dnd_class = DndClass.create!(
-#     name: data["name"],,
-#     description: data["desc"],
-#   )
-#   create_new_subclasses(data["subclasses"], dnd_class)
-# end
-
-# def create_new_subclasses(subclasses, dnd_class)
-#   subclasses.each do |subclass|
-#     uri = URI("https://www.dnd5eapi.co/api/#{subclass["url"]}")
-#     res = Net::HTTP.get_response(uri)
-#     data = JSON.parse(res.body)
-#     dnd_subclass = DndSubclass.create!(
-#       name: data["name"],
-#       description: data["desc"],
-#       dnd_class: dnd_class
-#     )
-#     # create_new_spells(data["spells"], dnd_subclass)
-#   end
-  
-# end
-AdminUser.create!(email: 'admin@example.com', password: 'password', password_confirmation: 'password') if Rails.env.development?
