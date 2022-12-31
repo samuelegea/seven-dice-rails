@@ -1,11 +1,10 @@
 ActiveAdmin.register Equipment do
-
   # See permitted parameters documentation:
   # https://github.com/activeadmin/activeadmin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
   #
   # Uncomment all parameters which should be permitted for assignment
   #
-  # permit_params :name, :description, :source_type, :source_id, :cost_qtd, :cost_unit, :equipment_category_id, :weight, :default_quantity, :homebrew, :public
+  # permit_params :name, :description, :source_type, :source_id, :cost, :equipment_category, :weight, :default_quantity, :homebrew, :public
   #
   # or
   #
@@ -14,5 +13,4 @@ ActiveAdmin.register Equipment do
   #   permitted << :other if params[:action] == 'create' && current_user.admin?
   #   permitted
   # end
-  
 end
