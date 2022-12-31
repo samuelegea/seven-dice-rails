@@ -27,12 +27,8 @@ module Costs
     }.freeze
   end
 
-  def cost
-    "#{cost_qtd} #{cost_unit}"
-  end
-
-  def cost_readable
-    "#{ActionController::Base.helpers.number_to_currency(cost_qtd)} #{UNITS_NAMES[cost_unit].pluralize(cost_qtd)}"
+  def cost(qtd = cost_qtd, unit = cost_unit)
+    "#{ActionController::Base.helpers.number_to_currency(qtd)} #{UNITS_NAMES[cost_unit].pluralize(unit)}"
   end
 
   def cost_h
@@ -40,7 +36,7 @@ module Costs
   end
 
   def convert_cost(unit)
-    ActionController::Base.helpers.number_to_human(cost_h[:qtd] * COST_VALUES[cost_h[:unit]].to_f / COST_VALUES[unit])
+    cost ActionController::Base.helpers.number_to_human(cost_h[:qtd] * COST_VALUES[cost_h[:unit]].to_f / COST_VALUES[unit]), unit
   end
 
   def convert_cost_to(unit)
