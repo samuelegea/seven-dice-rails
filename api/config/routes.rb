@@ -1,5 +1,6 @@
 require 'sidekiq/web'
 Rails.application.routes.draw do
+  resources :tools
   resources :vehicles
   resources :equipaments
   resources :gears

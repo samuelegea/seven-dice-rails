@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_12_28_212353) do
+ActiveRecord::Schema[7.0].define(version: 2022_12_30_194603) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -40,14 +40,12 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_28_212353) do
   end
 
   create_table "armors", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.text "name"
-    t.text "description"
-    t.integer "category"
-    t.integer "armor_class"
-    t.boolean "armor_class_dex_bonus"
+    t.integer "category", null: false
+    t.integer "armor_class", null: false
+    t.boolean "armor_class_dex_bonus", default: false, null: false
     t.integer "armor_class_max_bonus"
-    t.boolean "stealth_disadvantage"
-    t.integer "str_minimun"
+    t.boolean "stealth_disadvantage", null: false
+    t.integer "str_minimum", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -124,12 +122,15 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_28_212353) do
   end
 
   create_table "equipments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description", null: false
     t.string "source_type", null: false
     t.uuid "source_id", null: false
     t.float "cost_qtd"
     t.integer "cost_unit"
     t.uuid "equipment_category_id", null: false
     t.integer "weight"
+    t.integer "default_quantity", default: 1
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "homebrew", default: false, null: false
@@ -178,8 +179,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_28_212353) do
   end
 
   create_table "gears", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "name"
-    t.text "description"
+    t.integer "category", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -337,6 +337,12 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_28_212353) do
     t.index ["race_id"], name: "index_sub_races_on_race_id"
   end
 
+  create_table "tools", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.integer "category"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "traits", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.text "description", null: false
@@ -367,8 +373,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_28_212353) do
   end
 
   create_table "vehicles", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "name", null: false
-    t.text "description", null: false
     t.integer "speed_qtd"
     t.integer "speed_unit"
     t.integer "capacity"
@@ -395,8 +399,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_28_212353) do
   end
 
   create_table "weapons", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "name", null: false
-    t.text "description", null: false
     t.boolean "melee", null: false
     t.boolean "martial", null: false
     t.integer "damage_type", null: false

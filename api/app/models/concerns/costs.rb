@@ -33,9 +33,7 @@ module Costs
 
   def cost_readable
     "#{ActionController::Base.helpers.number_to_currency(cost_qtd)} #{UNITS_NAMES[cost_unit].pluralize(cost_qtd)}"
-    
   end
-  
 
   def cost_h
     { qtd: cost_qtd, unit: cost_unit }
