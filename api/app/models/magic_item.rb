@@ -1,2 +1,0 @@
-class MagicItem < ApplicationRecord
-end

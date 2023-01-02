@@ -1,0 +1,2 @@
+class HomebrewAccessesController < ApplicationController
+end

@@ -2,7 +2,7 @@ require 'sidekiq/web'
 Rails.application.routes.draw do
   resources :tools
   resources :vehicles
-  resources :equipaments
+  resources :equipments
   resources :gears
   resources :armors
   resources :weapons
@@ -11,7 +11,7 @@ Rails.application.routes.draw do
 
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
-  resources :equipament_categories
+  resources :equipment_categories
   resources :proficiencies
   resources :monsters
   resources :skills
