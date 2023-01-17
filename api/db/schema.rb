@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_12_30_194603) do
+ActiveRecord::Schema[7.0].define(version: 2023_01_17_183259) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -96,7 +96,9 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_30_194603) do
   create_table "dnd_classes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", default: "", null: false
     t.text "description", default: "", null: false
+    t.integer "hit_die", default: 0, null: false
     t.json "details", null: false
+    t.integer "saving_throws", default: [], null: false, array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "homebrew", default: false, null: false
@@ -245,6 +247,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_30_194603) do
     t.uuid "weapon_id"
     t.uuid "armor_id"
     t.uuid "tool_id"
+    t.uuid "spell_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "homebrew", default: false, null: false
@@ -257,11 +260,23 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_30_194603) do
     t.index ["saving_throw_id"], name: "index_proficiencies_on_saving_throw_id"
     t.index ["skill_id"], name: "index_proficiencies_on_skill_id"
     t.index ["source_type", "source_id"], name: "index_proficiencies_on_source"
+    t.index ["spell_id"], name: "index_proficiencies_on_spell_id"
     t.index ["tool_category_id"], name: "index_proficiencies_on_tool_category_id"
     t.index ["tool_id"], name: "index_proficiencies_on_tool_id"
     t.index ["vehicle_id"], name: "index_proficiencies_on_vehicle_id"
     t.index ["weapon_category_id"], name: "index_proficiencies_on_weapon_category_id"
     t.index ["weapon_id"], name: "index_proficiencies_on_weapon_id"
+  end
+
+  create_table "proficiency_choices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.integer "choose", null: false
+    t.string "source_type", null: false
+    t.uuid "source_id", null: false
+    t.uuid "proficiency_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["proficiency_id"], name: "index_proficiency_choices_on_proficiency_id"
+    t.index ["source_type", "source_id"], name: "index_proficiency_choices_on_source"
   end
 
   create_table "races", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -278,7 +293,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_30_194603) do
   create_table "skill_characters", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "skills_id", null: false
     t.uuid "character_id", null: false
-    t.integer "proeficency_level", default: 0, null: false
+    t.integer "proficiency_level", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["character_id"], name: "index_skill_characters_on_character_id"
@@ -298,19 +313,21 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_30_194603) do
   create_table "spells", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.text "description", null: false
-    t.integer "components", default: [], null: false, array: true
-    t.json "details", null: false
-    t.integer "duration_qtd", null: false
-    t.integer "duration_type", null: false
-    t.boolean "concentration", default: false, null: false
+    t.string "components", default: "", null: false
+    t.integer "level", default: 0, null: false
+    t.string "material", default: "", null: false
     t.boolean "ritual", default: false, null: false
+    t.boolean "concentration", default: false, null: false
+    t.integer "duration_qtd", null: false
+    t.integer "duration_type", default: 0, null: false
     t.integer "casting_time_qtd", default: 1, null: false
     t.integer "casting_time_type", default: 0, null: false
     t.float "range", default: 0.0, null: false
-    t.integer "cast_type", default: 0, null: false
-    t.json "format", null: false
-    t.boolean "summoning", default: false, null: false
+    t.integer "range_type", default: 0, null: false
+    t.integer "area_of_effect_type", default: 0
+    t.integer "area_of_effect_size", default: 1
     t.integer "school", default: 0, null: false
+    t.json "details", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "homebrew", default: false, null: false
@@ -325,6 +342,27 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_30_194603) do
     t.datetime "updated_at", null: false
     t.index ["language_id"], name: "index_spoken_languages_on_language_id"
     t.index ["speaker_type", "speaker_id"], name: "index_spoken_languages_on_speaker"
+  end
+
+  create_table "starting_equipment_choices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.integer "choose"
+    t.string "source_type", null: false
+    t.uuid "source_id", null: false
+    t.uuid "equipments_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["equipments_id"], name: "index_starting_equipment_choices_on_equipments_id"
+    t.index ["source_type", "source_id"], name: "index_starting_equipment_choices_on_source"
+  end
+
+  create_table "starting_equipments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "source_type", null: false
+    t.uuid "source_id", null: false
+    t.uuid "equipments_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["equipments_id"], name: "index_starting_equipments_on_equipments_id"
+    t.index ["source_type", "source_id"], name: "index_starting_equipments_on_source"
   end
 
   create_table "sub_races", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -427,8 +465,11 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_30_194603) do
   add_foreign_key "gears_equipments", "equipments", column: "equipments_id"
   add_foreign_key "gears_equipments", "gears"
   add_foreign_key "homebrew_accesses", "characters"
+  add_foreign_key "proficiency_choices", "proficiencies"
   add_foreign_key "skill_characters", "characters"
   add_foreign_key "skill_characters", "skills", column: "skills_id"
+  add_foreign_key "starting_equipment_choices", "equipments", column: "equipments_id"
+  add_foreign_key "starting_equipments", "equipments", column: "equipments_id"
   add_foreign_key "sub_races", "races"
   add_foreign_key "weapon_properties_weapons", "weapon_properties"
   add_foreign_key "weapon_properties_weapons", "weapons"

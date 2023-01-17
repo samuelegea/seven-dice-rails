@@ -340,7 +340,6 @@ DEPENDENCIES
   debug
   devise
   devise-jwt
-  factory_bot (~> 6.2)
   factory_bot_rails
   faker
   i18n

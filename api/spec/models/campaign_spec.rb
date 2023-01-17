@@ -1,5 +1,6 @@
-require 'rails_helper'
-
-RSpec.describe Campaign, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+describe Campaign do
+  describe 'associations' do
+    it { should belong_to(:created_by) }
+    it { should belong_to(:dmed_by) }
+  end
 end

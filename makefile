@@ -1,34 +1,62 @@
-u:
+up:
 	docker compose up
-d:
+down:
 	docker compose down
 build:
 	docker compose build
-upb:
+up_build:
 	docker compose up --build
 
 # Specific commands to backend
-ub:
+up_backend:
 	docker compose up back
-bb:
+backend_bash:
 	docker exec -it $$(docker ps --filter name=api -q) bash
-m:
+migrate:
 	docker exec -it $$(docker ps --filter name=api -q) rake db:migrate
-s:
+seed:
 	docker exec -it $$(docker ps --filter name=api -q) rake db:seed
-c:
+reset:
+    docker exec -it $$(docker ps --filter name=api -q) rake db:reset
+setup:
+    docker exec -it $$(docker ps --filter name=api -q) rake db:setup
+console:
 	docker exec -it $$(docker ps --filter name=api -q) rails c
-t:
+test:
 	docker exec -it $$(docker ps --filter name=api -q) rspec
-rb:
+rubocop:
 	docker exec -it $$(docker ps --filter name=api -q) rubocop
-rba:
+rubocop_all:
 	docker exec -it $$(docker ps --filter name=api -q) rubocop -a
-rbaa:
+rubocop_all_unsf:
 	docker exec -it $$(docker ps --filter name=api -q) rubocop -A
 
 # Specific commands to frontend
-uf:
+up_frontend:
 	docker compose up frontend
-fb:
+frontend_bash:
 	docker exec -it $$(docker ps --filter name=front -q) bash
+
+# Aliases
+
+u: up
+ub: up_backend
+uf: up_frontend
+d: down
+b: build
+ub: up_build
+bb: backend_bash
+fb: frontend_bash
+m: migrate
+s: seed
+c: console
+rst: reset
+st: setup
+t: test
+r: rubocop
+ra: rubocop_all
+rau: rubocop_all_unsf
+
+
+
+

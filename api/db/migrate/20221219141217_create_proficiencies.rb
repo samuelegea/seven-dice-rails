@@ -14,6 +14,7 @@ class CreateProficiencies < ActiveRecord::Migration[7.0]
       t.references :weapon,             type: :uuid
       t.references :armor,              type: :uuid
       t.references :tool,               type: :uuid
+      t.references :spell,              type: :uuid
 
       t.timestamps
     end

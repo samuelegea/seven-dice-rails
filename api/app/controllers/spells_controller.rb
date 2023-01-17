@@ -1,19 +1,19 @@
 class SpellsController < ApplicationController
   before_action :set_spell, only: %i[ show update destroy ]
 
-  # GET /spells
+  # GET /spells.rb
   def index
     @spells = Spell.all
 
     render json: @spells
   end
 
-  # GET /spells/1
+  # GET /spells.rb/1
   def show
     render json: @spell
   end
 
-  # POST /spells
+  # POST /spells.rb
   def create
     @spell = Spell.new(spell_params)
 
@@ -24,7 +24,7 @@ class SpellsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /spells/1
+  # PATCH/PUT /spells.rb/1
   def update
     if @spell.update(spell_params)
       render json: @spell
@@ -33,7 +33,7 @@ class SpellsController < ApplicationController
     end
   end
 
-  # DELETE /spells/1
+  # DELETE /spells.rb/1
   def destroy
     @spell.destroy
   end

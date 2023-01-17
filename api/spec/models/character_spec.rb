@@ -1,5 +1,11 @@
-require 'rails_helper'
+class CharacterTest < ActiveSupport::TestCase
+  test 'character has a valid race' do
+    character = Character.create(race: Race.first)
+    assert character.valid?
+  end
 
-RSpec.describe Character, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  test 'character has a valid subrace' do
+    character = Character.create(subrace: Subrace.first)
+    assert character.valid?
+  end
 end

@@ -3,28 +3,28 @@ require "rails_helper"
 RSpec.describe SpellsController, type: :routing do
   describe "routing" do
     it "routes to #index" do
-      expect(get: "/spells").to route_to("spells#index")
+      expect(get: "/spells.rb").to route_to("spells.rb#index")
     end
 
     it "routes to #show" do
-      expect(get: "/spells/1").to route_to("spells#show", id: "1")
+      expect(get: "/spells.rb/1").to route_to("spells.rb#show", id: "1")
     end
 
 
     it "routes to #create" do
-      expect(post: "/spells").to route_to("spells#create")
+      expect(post: "/spells.rb").to route_to("spells.rb#create")
     end
 
     it "routes to #update via PUT" do
-      expect(put: "/spells/1").to route_to("spells#update", id: "1")
+      expect(put: "/spells.rb/1").to route_to("spells.rb#update", id: "1")
     end
 
     it "routes to #update via PATCH" do
-      expect(patch: "/spells/1").to route_to("spells#update", id: "1")
+      expect(patch: "/spells.rb/1").to route_to("spells.rb#update", id: "1")
     end
 
     it "routes to #destroy" do
-      expect(delete: "/spells/1").to route_to("spells#destroy", id: "1")
+      expect(delete: "/spells.rb/1").to route_to("spells.rb#destroy", id: "1")
     end
   end
 end
